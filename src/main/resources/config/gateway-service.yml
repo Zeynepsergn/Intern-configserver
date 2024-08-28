@@ -1,0 +1,73 @@
+server:
+  port: 8060
+  forward-headers-strategy: framework
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8061/eureka/
+
+logging:
+  pattern:
+    console: "%clr(%d{yyyy-MM-dd HH:mm:ss}){blue} %clr([%X{traceId:-},%X{spanId:-}]){cyan} %clr(${LOG_LEVEL_PATTERN:-%5p}) %m%n"
+
+spring:
+  output:
+    ansi:
+      enabled: always
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+      routes:
+        - id: borc-service
+          uri: lb://borc-service
+          predicates:
+            - Path=/borc/**
+          filters:
+            - RewritePath=/borc/(?<path>.*), /$\{path}
+        - id: odeme-service
+          uri: lb://odeme-service
+          predicates:
+            - Path=/odeme/**
+          filters:
+            - RewritePath=/odeme/(?<path>.*), /$\{path}
+        - id: spos-service
+          uri: lb://spos-service
+          predicates:
+            - Path=/spos/**
+          filters:
+            - RewritePath=/spos/(?<path>.*), /$\{path}
+        - id: fpos-service
+          uri: lb://fpos-service
+          predicates:
+            - Path=/fpos/**
+          filters:
+            - RewritePath=/fpos/(?<path>.*), /$\{path}
+        - id: nakit-service
+          uri: lb://nakit-service
+          predicates:
+            - Path=/nakit/**
+          filters:
+            - RewritePath=/nakit/(?<path>.*), /$\{path}
+        - id: openapi
+          uri: http://localhost:${server.port}
+          predicates:
+            - Path=/v3/api-docs/**
+          filters:
+            - RewritePath=/v3/api-docs/(?<path>.*), /$\{path}/v3/api-docs
+
+springdoc:
+  cache:
+    disabled: true
+  version: '@springdoc.version@'
+  swagger-ui:
+    use-root-path: true
+  api-docs:
+    version: openapi_3_1
+
+management:
+  tracing:
+    sampling:
+      probability: 1.0

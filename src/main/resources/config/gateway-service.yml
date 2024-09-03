@@ -57,6 +57,12 @@ spring:
             - Path=/v3/api-docs/**
           filters:
             - RewritePath=/v3/api-docs/(?<path>.*), /$\{path}/v3/api-docs
+        - id: iade-service
+          uri: lb://iade-service
+          predicates:
+            - Path=/iade/**
+          filters:
+            - RewritePath=/iade/(?<path>.*), /$\{path}
 
 springdoc:
   cache:
